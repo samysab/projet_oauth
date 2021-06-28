@@ -1,8 +1,8 @@
 <?php
 const CLIENT_ID = "client_60a3778e70ef02.05413444";
-const CLIENT_FBID = "3648086378647793";
+const CLIENT_FBID = "478489700258105";
 const CLIENT_SECRET = "cd989e9a4b572963e23fe39dc14c22bbceda0e60";
-const CLIENT_FBSECRET = "1b5d764e7a527c2b816259f575a59942";
+const CLIENT_FBSECRET = "bb98e62cd4229c0760838d8cbfe45ca9";
 const STATE = "fdzefzefze";
 function handleLogin()
 {

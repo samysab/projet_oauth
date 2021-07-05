@@ -14,8 +14,6 @@ abstract class ProviderController
     final public function templateMethod(): void
     {
     	$this->handleLogin();
-        $this->handleSuccess();
-
     }
 
     protected function handleLogin(){

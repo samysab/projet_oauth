@@ -5,13 +5,13 @@ namespace App\Controller;
 
 class FacebookController extends ProviderController{
 
-	private $code = "fdzefzefze";
+	private $code = "60a3919d567a1";
 	private $state = "fdzefzefze";
 
 	public function handleSuccess(): void
 	{
-	    $this->state = $_GET["state"];
-	    $this->code = $_GET["code"];
+	    $_GET["state"] = $this->state ;
+	    $_GET["code"] = $this->code;
 	    if ($this->state !== STATE) {
 	        throw new \RuntimeException("{$this->state}: invalid state");
 	    }
@@ -28,46 +28,5 @@ class FacebookController extends ProviderController{
 	    ]);
 	    echo file_get_contents($userUrl, false, $context);
 	}
-
-
-
-    /**
-     * @return mixed
-     */
-    public function getCode()
-    {
-        return $this->code;
-    }
-
-    /**
-     * @param mixed $code
-     *
-     * @return self
-     */
-    public function setCode($code)
-    {
-        $this->code = $code;
-
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getState()
-    {
-        return $this->state;
-    }
-
-    /**
-     * @param mixed $state
-     *
-     * @return self
-     */
-    public function setState($state)
-    {
-        $this->state = $state;
-
-        return $this;
-    }
+	
 }

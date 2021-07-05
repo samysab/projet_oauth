@@ -1,74 +1,29 @@
 <?php
+
+ini_set("display_errors", true);
+
+include 'Controllers/ProviderController.php';
+include 'Controllers/FacebookController.php';
+include 'Controllers/GithubController.php';
+
+
 const CLIENT_ID = "client_60a3778e70ef02.05413444";
-const CLIENT_FBID = "3648086378647793";
+const CLIENT_FBID = "478489700258105";
+const CLIENT_GITID = "5c0ee32c7724b006861e";
 const CLIENT_SECRET = "cd989e9a4b572963e23fe39dc14c22bbceda0e60";
-const CLIENT_FBSECRET = "1b5d764e7a527c2b816259f575a59942";
+const CLIENT_FBSECRET = "bb98e62cd4229c0760838d8cbfe45ca9";
+const CLIENT_GITSECRET = "cbfd0ad257e783da29ed90a6d8531e364c4d7af";
 const STATE = "fdzefzefze";
-function handleLogin()
-{
-    // http://.../auth?response_type=code&client_id=...&scope=...&state=...
-    echo "<h1>Login with OAUTH</h1>";
-    echo "<a href='http://localhost:8081/auth?response_type=code"
-        . "&client_id=" . CLIENT_ID
-        . "&scope=basic"
-        . "&state=" . STATE . "'>Se connecter avec Oauth Server</a>";
-    echo "<a href='https://www.facebook.com/v2.10/dialog/oauth?response_type=code"
-        . "&client_id=" . CLIENT_FBID
-        . "&scope=email"
-        . "&state=" . STATE
-        . "&redirect_uri=http://localhost:8082/fbauth-success"
-        . "&sdk=php-sdk-6.0-dev'>Se connecter avec Facebook</a>";
-}
+const APP_NAME = "GH WHATEVER";
 
-function handleError()
-{
-    ["state" => $state] = $_GET;
-    echo "{$state} : Request cancelled";
-}
+use App\Controller\FacebookController;
+use App\Controller\GithubController;
 
-function handleSuccess()
+function clientCode($class)
 {
-    ["state" => $state, "code" => $code] = $_GET;
-    if ($state !== STATE) throw new RuntimeException("{$state} : invalid state");
-    // https://auth-server/token?grant_type=authorization_code&code=...&client_id=..&client_secret=...
-    getUser([
-        'grant_type' => "authorization_code",
-        "code" => $code,
-    ]);
-}
-
-function handleFbSuccess()
-{
-    ["state" => $state, "code" => $code] = $_GET;
-    if ($state !== STATE) throw new RuntimeException("{$state} : invalid state");
-    // https://auth-server/token?grant_type=authorization_code&code=...&client_id=..&client_secret=...
-    $url = "https://graph.facebook.com/oauth/access_token?grant_type=authorization_code&code={$code}&client_id=" . CLIENT_FBID . "&client_secret=" . CLIENT_FBSECRET."&redirect_uri=http://localhost:8082/fbauth-success";
-    $result = file_get_contents($url);
-    $resultDecoded = json_decode($result, true);
-    ["access_token"=> $token] = $resultDecoded;
-    $userUrl = "https://graph.facebook.com/me?fields=id,name,email";
-    $context = stream_context_create([
-        'http' => [
-            'header' => 'Authorization: Bearer ' . $token
-        ]
-    ]);
-    echo file_get_contents($userUrl, false, $context);
-}
-
-function getUser($params)
-{
-    $url = "http://oauth-server:8081/token?client_id=" . CLIENT_ID . "&client_secret=" . CLIENT_SECRET . "&" . http_build_query($params);
-    $result = file_get_contents($url);
-    $result = json_decode($result, true);
-    $token = $result['access_token'];
-
-    $apiUrl = "http://oauth-server:8081/me";
-    $context = stream_context_create([
-        'http' => [
-            'header' => 'Authorization: Bearer ' . $token
-        ]
-    ]);
-    echo file_get_contents($apiUrl, false, $context);
+    // ...
+    $class->templateMethod();
+    // ...
 }
 
 /**
@@ -81,13 +36,16 @@ function getUser($params)
 $route = strtok($_SERVER["REQUEST_URI"], "?");
 switch ($route) {
     case '/login':
-        handleLogin();
+        clientCode(new FacebookController);
         break;
     case '/auth-success':
         handleSuccess();
         break;
     case '/fbauth-success':
         handleFbSuccess();
+        break;
+    case '/gitauth-success':
+        handleGitSuccess();
         break;
     case '/auth-cancel':
         handleError();

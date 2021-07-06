@@ -7,10 +7,6 @@ namespace App\Controller;
 abstract class ProviderController
 {
 
-
-    /**
-     * The template method defines the skeleton of an algorithm.
-     */
     final public function templateMethod(): void
     {
     	$this->handleLogin();

@@ -15,12 +15,12 @@ class Helpers{
 	    if($post)
 	        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post));
 	    $headers[] = 'Accept: application/json';
-	    if(session('access_token'))
-	        $headers[] = 'Authorization: Bearer ' . session('access_token');
+	    if(self::session('access_token'))
+	        $headers[] = 'Authorization: Bearer ' . self::session('access_token');
 	    $headers[] = 'User-Agent:' . APP_NAME;
 	    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 	    $response = curl_exec($ch);
-	    return json_decode($response);
+	    return json_decode($response, true);
 	}
 
 }

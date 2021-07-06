@@ -5,13 +5,23 @@ namespace App\Controller;
 
 class OauthController extends ProviderController{
 
+	public function handleLogin(): void
+	{
+	    // http://.../auth?response_type=code&client_id=...&scope=...&state=...
+	    echo "<h1>Login with OAUTH</h1>";
+	    echo "<a href='http://localhost:8081/auth?response_type=code"
+	        . "&client_id=" . CLIENT_ID
+	        . "&scope=basic"
+	        . "&state=" . STATE . "'>Se connecter avec Oauth Server</a>";
+	}
+
 	public function handleError()
 	{
 	    ["state" => $state] = $_GET;
 	    echo "{$state} : Request cancelled";
 	}
 
-	public function handleSuccess()
+	public function handleSuccess(): void
 	{
 	    ["state" => $state, "code" => $code] = $_GET;
 	    if ($state !== STATE) {

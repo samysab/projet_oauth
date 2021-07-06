@@ -1,32 +1,22 @@
 <?php
 
 ini_set("display_errors", true);
+session_start();
 
 include 'Controllers/ProviderController.php';
 include 'Controllers/FacebookController.php';
 include 'Controllers/GithubController.php';
+include 'Controllers/OauthController.php';
+include 'Core/Helpers.php';
 
-
-const CLIENT_ID = "client_60a3778e70ef02.05413444";
-const CLIENT_FBID = "680298766144941";
-const CLIENT_GITID = "5c0ee32c7724b006861e";
-const CLIENT_SECRET = "cd989e9a4b572963e23fe39dc14c22bbceda0e60";
-const CLIENT_FBSECRET = "3f8eda2d2b87562b4d03c8009786943d";
-const CLIENT_GITSECRET = "cbfd0ad257e783da29ed90a6d8531e364c4d7af";
-const STATE = "fdzefzefze";
-const APP_NAME = "GH WHATEVER";
+include "./config.php";
 
 use App\Controller\FacebookController;
 use App\Controller\GithubController;
+use App\Controller\OauthController;
 
-function clientCode($class)
-{
-    // ...
-    $class->templateMethod();
-    // ...
-}
 
-$fb = new FacebookController();
+$provider = new GithubController();
 
 /**
  * AUTH CODE WORKFLOW
@@ -38,16 +28,16 @@ $fb = new FacebookController();
 $route = strtok($_SERVER["REQUEST_URI"], "?");
 switch ($route) {
     case '/login':
-        clientCode($fb);
+        $provider->templateMethod();
         break;
     case '/auth-success':
-        $fb->handleSuccess();
+        $provider->handleSuccess();
         break;
     case '/fbauth-success':
-        $fb->handleSuccess();
+        $provider->handleSuccess();
         break;
     case '/gitauth-success':
-        handleGitSuccess();
+        $provider->handleSuccess();
         break;
     case '/auth-cancel':
         handleError();

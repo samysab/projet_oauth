@@ -3,9 +3,19 @@
 
 namespace App\Controller;
 
+use App\Core\Helpers;
+
 class GithubController extends ProviderController{
 
-	protected function handleSuccess(): void
+
+	public function handleLogin(): void{
+	    echo "<a href='https://github.com/login/oauth/authorize?response_type=code"
+        . "&client_id=" . CLIENT_GITID
+        . "&state=" . STATE
+        . "&redirect_uri=https://localhost/gitauth-success'>Se connecter avec Github</a>";
+	}
+
+	public function handleSuccess(): void
 	{
 	    ["state" => $state, "code" => $code] = $_GET;
 	    if ($state !== STATE) {
@@ -14,7 +24,7 @@ class GithubController extends ProviderController{
 	    $url ="https://github.com/login/oauth/access_token";
 	    $apiURLBase = 'https://api.github.com';
 	    // Exchange the auth code for a token
-	    $token = apiRequest($url, array(
+	    $token = Helpers::apiRequest($url, array(
 	        'client_id' => CLIENT_GITID,
 	        'client_secret' => CLIENT_GITSECRET,
 	        'redirect_uri' => "https://localhost/gitauth-success",
@@ -23,10 +33,10 @@ class GithubController extends ProviderController{
 	        'code' => $code
 	    ));
 
-	    $_SESSION['access_token'] = $token->access_token;
+	    if(isset($token["access_token"])) $_SESSION['access_token'] = $token["access_token"];
 
-	    if(session('access_token')) {
-	        $response = apiRequest($apiURLBase. '/user');
+	    if(Helpers::session('access_token')) {
+	        $response = Helpers::apiRequest($apiURLBase. '/user');
 	        echo '<h3>Logged In</h3>';
 	        echo '<pre>';
 	        print_r($response);

@@ -5,6 +5,15 @@ namespace App\Controller;
 
 class FacebookController extends ProviderController{
 
+	public function handleLogin(): void{
+	    echo "<a href='https://www.facebook.com/v2.10/dialog/oauth?response_type=code"
+        . "&client_id=" . CLIENT_FBID
+        . "&scope=email"
+        . "&state=" . STATE
+        . "&redirect_uri=https://localhost/fbauth-success'>Se connecter avec Facebook</a>";
+	}
+
+	
 	public function handleSuccess(): void
 	{
 	    ["state" => $state, "code" => $code] = $_GET; 

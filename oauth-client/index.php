@@ -16,7 +16,9 @@ use App\Controller\GithubController;
 use App\Controller\OauthController;
 
 
-$provider = new GithubController();
+$providerFb = new FacebookController();
+$providerGit = new GithubController();
+$providerOauth = new OauthController();
 
 /**
  * AUTH CODE WORKFLOW
@@ -28,16 +30,18 @@ $provider = new GithubController();
 $route = strtok($_SERVER["REQUEST_URI"], "?");
 switch ($route) {
     case '/login':
-        $provider->templateMethod();
+        $providerOauth->templateMethod();
+        $providerFb->templateMethod();
+        $providerGit->templateMethod();
         break;
     case '/auth-success':
-        $provider->handleSuccess();
+        $providerOauth->handleSuccess();
         break;
     case '/fbauth-success':
-        $provider->handleSuccess();
+        $providerFb->handleSuccess();
         break;
     case '/gitauth-success':
-        $provider->handleSuccess();
+        $providerGit->handleSuccess();
         break;
     case '/auth-cancel':
         handleError();

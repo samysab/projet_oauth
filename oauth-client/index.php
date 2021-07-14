@@ -7,6 +7,7 @@ include 'Controllers/ProviderController.php';
 include 'Controllers/FacebookController.php';
 include 'Controllers/GithubController.php';
 include 'Controllers/OauthController.php';
+include 'Controllers/GmailController.php';
 include 'Core/Helpers.php';
 
 include "./config.php";
@@ -14,11 +15,12 @@ include "./config.php";
 use App\Controller\FacebookController;
 use App\Controller\GithubController;
 use App\Controller\OauthController;
-
+use App\Controllers\GmailController;
 
 $providerFb = new FacebookController();
 $providerGit = new GithubController();
 $providerOauth = new OauthController();
+$providerGmail = new \App\Controller\GmailController();
 
 /**
  * AUTH CODE WORKFLOW
@@ -33,6 +35,7 @@ switch ($route) {
         $providerOauth->templateMethod();
         $providerFb->templateMethod();
         $providerGit->templateMethod();
+        $providerGmail->templateMethod();
         break;
     case '/auth-success':
         $providerOauth->handleSuccess();
@@ -42,6 +45,9 @@ switch ($route) {
         break;
     case '/gitauth-success':
         $providerGit->handleSuccess();
+        break;
+    case '/gmailauth-success':
+        $providerGmail->handleSuccess();
         break;
     case '/auth-cancel':
         handleError();

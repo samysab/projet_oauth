@@ -20,6 +20,6 @@ COPY --from=caddy /usr/bin/caddy /usr/local/bin/caddy
 RUN caddy validate --config docker/Caddyfile && \
     cp docker/php-fpm.conf /usr/local/etc/php-fpm.d/zz-docker.conf
 
-EXPOSE 8080
+EXPOSE 80
 
 CMD ["caddy", "run", "--config", "docker/Caddyfile"]

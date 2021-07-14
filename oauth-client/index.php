@@ -1,136 +1,24 @@
 <?php
-const CLIENT_ID = "client_60a3778e70ef02.05413444";
-const CLIENT_FBID = "478489700258105";
-const CLIENT_GITID = "5c0ee32c7724b006861e";
-const CLIENT_SECRET = "cd989e9a4b572963e23fe39dc14c22bbceda0e60";
-const CLIENT_FBSECRET = "bb98e62cd4229c0760838d8cbfe45ca9";
-const CLIENT_GITSECRET = "cbfdd0ad257e783da29ed90a6d8531e364c4d7af";
-const STATE = "fdzefzefze";
-const APP_NAME = "GH WHATEVER";
-function handleLogin()
-{
-    // http://.../auth?response_type=code&client_id=...&scope=...&state=...
-    echo "<h1>Login with OAUTH</h1>";
-    echo "<a href='http://localhost:8081/auth?response_type=code"
-        . "&client_id=" . CLIENT_ID
-        . "&scope=basic"
-        . "&state=" . STATE . "'>Se connecter avec Oauth Server</a>";
-    echo "<a href='https://www.facebook.com/v2.10/dialog/oauth?response_type=code"
-        . "&client_id=" . CLIENT_FBID
-        . "&scope=email"
-        . "&state=" . STATE
-        . "&redirect_uri=https://localhost/fbauth-success'>Se connecter avec Facebook</a>";
 
-    echo "<a href='https://github.com/login/oauth/authorize?response_type=code"
-        . "&client_id=" . CLIENT_GITID
-        . "&state=" . STATE
-        . "&redirect_uri=https://localhost/gitauth-success'>Se connecter avec Github</a>";
-}
+ini_set("display_errors", true);
+session_start();
 
-function handleError()
-{
-    ["state" => $state] = $_GET;
-    echo "{$state} : Request cancelled";
-}
+include 'Controllers/ProviderController.php';
+include 'Controllers/FacebookController.php';
+include 'Controllers/GithubController.php';
+include 'Controllers/OauthController.php';
+include 'Core/Helpers.php';
 
-function handleSuccess()
-{
-    ["state" => $state, "code" => $code] = $_GET;
-    if ($state !== STATE) {
-        throw new RuntimeException("{$state} : invalid state");
-    }
-    // https://auth-server/token?grant_type=authorization_code&code=...&client_id=..&client_secret=...
-    getUser([
-        'grant_type' => "authorization_code",
-        "code" => $code,
-    ]);
-}
+include "./config.php";
 
-function handleFbSuccess()
-{
-    ["state" => $state, "code" => $code] = $_GET;
-    if ($state !== STATE) {
-        throw new RuntimeException("{$state} : invalid state");
-    }
-    // https://auth-server/token?grant_type=authorization_code&code=...&client_id=..&client_secret=...
-    $url = "https://graph.facebook.com/oauth/access_token?grant_type=authorization_code&code={$code}&client_id=" . CLIENT_FBID . "&client_secret=" . CLIENT_FBSECRET."&redirect_uri=https://localhost/fbauth-success";
-    $result = file_get_contents($url);
-    $resultDecoded = json_decode($result, true);
-    ["access_token"=> $token] = $resultDecoded;
-    $userUrl = "https://graph.facebook.com/me?fields=id,name,email";
-    $context = stream_context_create([
-        'http' => [
-            'header' => 'Authorization: Bearer ' . $token
-        ]
-    ]);
-    echo file_get_contents($userUrl, false, $context);
-}
+use App\Controller\FacebookController;
+use App\Controller\GithubController;
+use App\Controller\OauthController;
 
-function apiRequest($url, $post=FALSE, $headers=array())
-{
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-    if($post)
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post));
-    $headers[] = 'Accept: application/json';
-    if(session('access_token'))
-        $headers[] = 'Authorization: Bearer ' . session('access_token');
-    $headers[] = 'User-Agent:' . APP_NAME;
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-    $response = curl_exec($ch);
-    return json_decode($response);
-}
-function session($key, $default=NULL)
-{
-    return array_key_exists($key, $_SESSION) ? $_SESSION[$key] : $default;
-}
-function handleGitSuccess()
-{
-    ["state" => $state, "code" => $code] = $_GET;
-    if ($state !== STATE) {
-        throw new RuntimeException("{$state} : invalid state");
-    }
-    $url ="https://github.com/login/oauth/access_token";
-    $apiURLBase = 'https://api.github.com';
-    // Exchange the auth code for a token
-    $token = apiRequest($url, array(
-        'client_id' => CLIENT_GITID,
-        'client_secret' => CLIENT_GITSECRET,
-        'redirect_uri' => "https://localhost/gitauth-success",
-        'state' => $state,
-        'User-Agent' => APP_NAME,
-        'code' => $code
-    ));
 
-    $_SESSION['access_token'] = $token->access_token;
-
-    if(session('access_token')) {
-        $response = apiRequest($apiURLBase. '/user');
-        echo '<h3>Logged In</h3>';
-        echo '<pre>';
-        print_r($response);
-        echo '</pre>';
-    } else {
-        echo '<h3>Not logged in</h3>';
-        echo '<p><a href="?action=login">Log In</a></p>';
-    }
-}
-
-function getUser($params)
-{
-    $url = "http://oauth-server:8081/token?client_id=" . CLIENT_ID . "&client_secret=" . CLIENT_SECRET . "&" . http_build_query($params);
-    $result = file_get_contents($url);
-    $result = json_decode($result, true);
-    $token = $result['access_token'];
-
-    $apiUrl = "http://oauth-server:8081/me";
-    $context = stream_context_create([
-        'http' => [
-            'header' => 'Authorization: Bearer ' . $token
-        ]
-    ]);
-    echo file_get_contents($apiUrl, false, $context);
-}
+$providerFb = new FacebookController();
+$providerGit = new GithubController();
+$providerOauth = new OauthController();
 
 /**
  * AUTH CODE WORKFLOW
@@ -142,16 +30,18 @@ function getUser($params)
 $route = strtok($_SERVER["REQUEST_URI"], "?");
 switch ($route) {
     case '/login':
-        handleLogin();
+        $providerOauth->templateMethod();
+        $providerFb->templateMethod();
+        $providerGit->templateMethod();
         break;
     case '/auth-success':
-        handleSuccess();
+        $providerOauth->handleSuccess();
         break;
     case '/fbauth-success':
-        handleFbSuccess();
+        $providerFb->handleSuccess();
         break;
     case '/gitauth-success':
-        handleGitSuccess();
+        $providerGit->handleSuccess();
         break;
     case '/auth-cancel':
         handleError();

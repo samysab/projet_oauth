@@ -50,4 +50,22 @@ class OauthController extends ProviderController{
 	    echo file_get_contents($apiUrl, false, $context);
 	}
 
+	public function pwdForm(){
+
+		if ($_SERVER['REQUEST_METHOD'] === "GET") {
+            echo '<form method="POST">';
+            echo '<input name="username">';
+            echo '<input name="password">';
+            echo '<input type="submit" value="Submit">';
+            echo '</form>';
+        } else {
+            ["username" => $username, "password" => $password] = $_POST;
+            $this->getUser([
+                'grant_type' => "password",
+                "username" => $username,
+                "password" => $password
+            ]);
+        }
+	}
+
 }

@@ -47,20 +47,7 @@ switch ($route) {
         handleError();
         break;
     case '/password':
-        if ($_SERVER['REQUEST_METHOD'] === "GET") {
-            echo '<form method="POST">';
-            echo '<input name="username">';
-            echo '<input name="password">';
-            echo '<input type="submit" value="Submit">';
-            echo '</form>';
-        } else {
-            ["username" => $username, "password" => $password] = $_POST;
-            getUser([
-                'grant_type' => "password",
-                "username" => $username,
-                "password" => $password
-            ]);
-        }
+        $providerOauth->pwdForm();
         break;
     default:
         http_response_code(404);

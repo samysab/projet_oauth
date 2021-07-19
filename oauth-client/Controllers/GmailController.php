@@ -20,24 +20,6 @@ class GmailController extends ProviderController
     {
         require_once 'google-api-php-client/vendor/autoload.php';
 
-
-/*        $client = new \Google_Client();
-        $client->setAuthConfig('client_secret.json');
-        $client->addScope(\Google_Service_Drive::DRIVE_METADATA_READONLY);
-        $client->setRedirectUri('https://localhost/gmailauth-success');
-        // offline access will give you both an access and refresh token so that
-        // your app can refresh the access token without user interaction.
-        $client->setAccessType('offline');
-        // Using "consent" ensures that your application always receives a refresh token.
-        // If you are not using offline access, you can omit this.
-        $client->setPrompt("consent");
-
-        $client->setIncludeGrantedScopes(true);   // incremental auth
-
-        $auth_url = $client->createAuthUrl();
-
-        //header('Location: ' . filter_var($auth_url, FILTER_SANITIZE_URL));*/
-
         $client = new \Google_Client();
         $client->setAuthConfig('client_secret.json');
         $client->setRedirectUri('https://localhost/gmailauth-success');
@@ -49,7 +31,6 @@ class GmailController extends ProviderController
         } else {
             $client->authenticate($_GET['code']);
             $_SESSION['access_token'] = $client->getAccessToken();
-            $redirect_uri = 'http://' . $_SERVER['HTTP_HOST'] . '/';
             echo '<pre>';
             var_dump($_SESSION['access_token']);
         }
